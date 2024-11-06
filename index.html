@@ -2930,3 +2930,145 @@ window.addEventListener(
 
 
 </div></body></html>
+<script>
+	$(document).ready(function () {
+
+	const botones = document.querySelectorAll('.btn-menus');
+
+	botones.forEach(boton => {
+		boton.addEventListener('mouseenter', function () {
+			const id = boton.getAttribute('data-id');
+			const menus = document.querySelectorAll('.menu');
+			menus.forEach(menu => {
+				menu.classList.remove('visible');
+			});
+
+			const divMenu = document.getElementById('menu' + id);
+			if (divMenu) {
+				divMenu.classList.add('visible');
+			}
+		});
+
+		boton.addEventListener('click', function () {
+			const id = boton.getAttribute('data-id');
+			const divMenu = document.getElementById('menu' + id);
+
+			if (divMenu) {
+				divMenu.classList.toggle('visible');
+			}
+		});
+	});
+
+	document.querySelectorAll('.menu').forEach(menu => {
+		menu.addEventListener('mouseleave', function () {
+			menu.classList.remove('visible');
+		});
+	});
+
+
+	var input = document.getElementById("inputBuscador");
+	var button = document.getElementById("click");
+	var close = document.getElementById("equis");
+
+	close.addEventListener("click", CerrarBuscador);
+
+	function CerrarBuscador() {
+		input.style.display = "none";
+		document.getElementById("equis").style.display = "none";
+	}
+
+	button.addEventListener("click", MostrarBuscador);
+
+	function MostrarBuscador() {
+		input.style.display = "block";
+		document.getElementById("equis").style.display = "block";
+	}
+
+
+	input.addEventListener("keypress", function (event) {
+		if (event.key === "Enter") {
+			BuscarFunctionNav();
+		}
+	});
+
+	function BuscarFunctionNav() {
+		query = document.getElementById("inputBuscador").value;
+		$.ajax({
+			method: "POST",
+			url: "http://localhost/municipalidad/search",
+			data: { query: query }
+		})
+			.done(function (response) {
+				const data = JSON.parse(response);
+
+				if (Array.isArray(data)) {
+					const modalBody = document.getElementById('modal-body');
+					modalBody.innerHTML = '';
+
+					data.forEach(coincidencia => {
+						const item = document.createElement('div');
+						item.innerHTML = `
+								<h5>${coincidencia.nombre || coincidencia.titular}</h5>
+								<div style="display: grid; grid-template-columns: repeat(2, 1fr);<">								
+								<img style="width:150px; height: 100px; object-fit: cover;"src="${coincidencia.imagen || 'https://www.corporacionlinares.cl/utilidades/guille//banner.png'}" alt="${coincidencia.nombre}" />
+								<p>${coincidencia.texto || coincidencia.descripcion || ""}</p>
+								</div>
+								<a href="${coincidencia.link || "http://localhost/municipalidad/noticia/" + coincidencia.id}" target="_blank">Más información</a>
+								<hr />
+							`;
+						modalBody.appendChild(item);
+					});
+					const myModal = new bootstrap.Modal(document.getElementById('miModal'));
+					myModal.show()
+
+				} else {
+					console.error("Los datos no son un array");
+				}
+			})
+
+			.fail(function (jqXHR, textStatus, errorThrown) {
+				console.error("Error en la solicitud:", textStatus, errorThrown);
+				alert("Ocurrió un error: " + textStatus);
+			});
+	}
+
+
+
+	(function ($) {
+		"use strict";
+
+		$(function () {
+			var header = $(".start-style");
+			$(window).scroll(function () {
+				var scroll = $(window).scrollTop();
+
+				if (scroll >= 10) {
+					header.removeClass('start-style').addClass("scroll-on");
+				} else {
+					header.removeClass("scroll-on").addClass('start-style');
+				}
+			});
+		});
+
+		//Animation
+
+		$(document).ready(function () {
+			$('body.hero-anime').removeClass('hero-anime');
+		});
+
+		//Menu On Hover
+
+		$('body').on('mouseenter mouseleave', '.nav-item', function (e) {
+			if ($(window).width() > 750) {
+				var _d = $(e.target).closest('.nav-item'); _d.addClass('show');
+				setTimeout(function () {
+					_d[_d.is(':hover') ? 'addClass' : 'removeClass']('show');
+				}, 1);
+			}
+		});
+
+
+	})(jQuery);
+
+});
+</script>
